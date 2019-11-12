@@ -13,10 +13,50 @@ import requests
 import time
 import datetime
 import pytz
+from bs4 import BeautifulSoup
 
 
-def Login(username, password):
-    pass
+def fetchLoginPage(session):
+    '''
+    Get lt verification code
+    '''
+    header = {
+        "Host": "uis.fudan.edu.cn",
+        "Connection": "keep-alive",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+        "DNT": "1",
+        "X-Requested-With": "XMLHttpRequest",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36",
+        "Referer": "http://jwfw.fudan.edu.cn/eams/home.action",
+        "Accept-Encoding": "gzip, deflate",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7,ja;q=0.6",
+        "Upgrade-Insecure-Requests": "1"
+    }
+    response = session.get(
+        "http://uis.fudan.edu.cn/authserver/login?service=http%3A%2F%2Fjwfw.fudan.edu.cn%2Feams%2Flogin.action", headers=header)
+    if response.status_code == 200:
+        parsed_text = BeautifulSoup(response.text, 'lxml')
+        dynamic_auth = (parsed_text.body.find(
+            'input', attrs={'name': 'lt', 'type': 'hidden'}))['value']
+        return dynamic_auth
+    else:
+        raise Exception("Cannot connect to FDU Teaching Affair login page.")
+
+
+def login(username, password, lt, session):
+    '''
+    Login to jwfw.fdu
+    '''
+    form_data = {
+        "username": username,
+        "password": password,
+        "dllt": "userNamePasswordLogin",
+        "execution": "e1s1",
+        "_eventId": "submit",
+        "rmShown": "1",
+        "lt": lt
+    }
+    return None
 
 
 def needCaptcha(fduid, session):
@@ -46,6 +86,14 @@ def needCaptcha(fduid, session):
 
 if __name__ == "__main__":
     s = requests.Session()
-    FDUID = input("Input your FDU id:\n")
-    resp = needCaptcha(FDUID, s)
-    print(resp)
+
+    try:
+
+        da = fetchLoginPage(s)
+    except Exception as e:
+        print(e)
+    #FDUID = input("Input your FDU id:\n")
+    #FDUPW = input("Input your password:\n")
+    #resp = needCaptcha(FDUID, s)
+    # resp_login = login(username=FDUID, password=FDUPW, s)
+    # print(resp)
