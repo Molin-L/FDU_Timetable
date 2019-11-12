@@ -46,5 +46,6 @@ def needCaptcha(fduid, session):
 
 if __name__ == "__main__":
     s = requests.Session()
-    resp = needCaptcha("15301020060", s)
+    FDUID = input("Input your FDU id:\n")
+    resp = needCaptcha(FDUID, s)
     print(resp)
