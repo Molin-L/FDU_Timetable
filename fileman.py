@@ -14,6 +14,9 @@ from datetime import date
 import datetime
 import pytz
 
+'''
+FDU Course Time
+'''
 time_slot_start = {
     0: (8, 00),
     1: (8, 55),
@@ -28,21 +31,6 @@ time_slot_start = {
     10: (18, 30),
     11: (19, 25),
     12: (20, 20)
-}
-time_slot_end = {
-    0: (8, 45),
-    1: (9, 40),
-    2: (10, 40),
-    3: (11, 35),
-    4: (12, 50),
-    5: (14, 15),
-    6: (15, 10),
-    7: (16, 5),
-    8: (17, 00),
-    9: (17, 55),
-    10: (19, 15),
-    11: (20, 10),
-    12: (21, 5)
 }
 
 
@@ -60,6 +48,23 @@ def iso_to_gregorian(iso_year, iso_week, iso_day):
 
 
 def convertDate(week, day, slot):
+    '''
+    Convert school week to format date.
+    Parameters:
+    week: week number from FDU timetable;
+         教学周；
+    day: day from FDU timetable;
+         星期几
+         Note: 0 represents Monday, 1 is Tuesday, and so forth.
+         0 代表 星期一
+    slot: class number in a day;
+         第几节课
+         Note: FDU has 14 classes a day; Class number starts with 0.
+         FDU 一天14节课，从0开始。
+    Returns:
+    Tuple of start datetime, and end datetime. 
+    A class is 45mins long.
+    '''
     tz = pytz.timezone('Asia/Shanghai')
     first_week_in_year = datetime.datetime(2019, 9, 8).isocalendar()[1]
     week += first_week_in_year
@@ -69,28 +74,61 @@ def convertDate(week, day, slot):
     GC_datetime = datetime.datetime.combine(
         GC_date, datetime.time(hour=start_hour, minute=start_min))
     GC_endTime = GC_datetime+datetime.timedelta(minutes=45)
-
+    GC_datetime.replace(tzinfo=tz)
+    GC_endTime.replace(tzinfo=tz)
     return GC_datetime, GC_endTime
 
 
-def createCourseEvent(course):
+def createCourseEvent(course, calendar):
+    '''
+    Create events for a course.
+    为单个课程创建日历事件；
+
+    Note: 需要注意的是本身FDU课程表数据存在重复，已经在Course类中使用
+    set做了去重，但由于课程太多，没有做到一一对比。
+    Note: The data from FDU teaching system exeists duplicate
+    events, which has been solved in class Course. However, due
+    to the tremendous courses we have, we didn't check them
+    respectively.
+    '''
     for week in course.available_week:
         for one_course in course.course_time:
             day, time = one_course.split(',')
-            print(course.teacher_names)
             start_time, end_time = convertDate(week, day, time)
+            event = Event()
+            event.add('summary', course.course_name)
+            event.add('dtstamp', datetime.datetime.now())
+            event.add('dtstart', start_time)
+            event.add('dtend', end_time)
+            event.add('location', course.room_name)
+
+            calendar.add_component(event)
+    return calendar
 
 
 def createCalendar(course_list):
+    '''
+    Create .isc file
+    '''
     cal = Calendar()
     cal['version'] = '2.0'
     cal['prodid'] = '-//Fudan, ©2019 Molin. L//Timetable//CN'
-    # print(course_list)
-    print(course_list[0])
-    createCourseEvent(course_list[0])
-    # for course in course_list:
-    #event = Event()
-    #event.add('summary', course.course_name)
-    #event.add('dtstamp', datetime.now())
-    # print(course)
-    # print(course.teacher_names)
+
+    for course in course_list:
+        cal = createCourseEvent(course, cal)
+    '''
+    生成的ics文件最好不要airdrop到手机，这样会自动添加进日历，且无法设置标记。
+    建议用邮件发给自己，仅测试过系统自带邮件app，可以先确认，再添加。
+
+    It's not recommanded to airdrop the produced ics file to your phone.
+    As the result, these events will be automatically loaded to your 
+    calendar, which I'm sure you will not like this, what's more, 
+    you can't add tag to these events either.
+
+    The best way to add these events is to send to your email inbox,
+    open it on your phone.
+    '''
+    f = open('fdu_timetable.ics', 'wb')
+    f.write(cal.to_ical())
+    f.close()
+    print("All success, enjoy.")

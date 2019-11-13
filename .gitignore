@@ -115,3 +115,6 @@ cookies
 # Test file
 test.py
 test.txt
+
+# ics file
+*.ics

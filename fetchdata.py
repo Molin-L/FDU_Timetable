@@ -20,6 +20,7 @@ import autologin
 from bs4 import BeautifulSoup
 from FDU_headers import HEADER_CAPTCHA, HEADER_LOGIN, HEADER_LT
 from utils import parseCookie, saveHtml
+import fileman
 
 
 class Course():
@@ -162,6 +163,7 @@ def processing(session, cookies):
     resp_table = tm.getTable()
     tm.data_clean(resp_table)
     print(tm.course_list)
+    fileman.createCalendar(tm.course_list)
 
 
 if __name__ == "__main__":
