@@ -105,3 +105,7 @@ venv.bak/
 
 # html file
 *.html
+
+# Auto Login
+
+autologin.py
