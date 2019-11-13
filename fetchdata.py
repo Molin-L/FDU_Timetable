@@ -25,23 +25,23 @@ from utils import parseCookie, saveHtml
 class Course():
     def __init__(self):
         self.__teacher_id = []
-        self.__teacher_names = []
+        self.teacher_names = []
         self.__course_id = ""
-        self.__course_name = ""
+        self.course_name = ""
         self.__room_id = ""
-        self.__room_name = ""
-        self.__available_week = []
-        self.course_time = []
+        self.room_name = ""
+        self.available_week = []
+        self.course_time = set()
 
     def __repr__(self):
-        temp_str = self.__course_name+',' + \
+        temp_str = self.course_name+',' + \
             self.__room_id+',\t'+(', '.join(self.course_time))
         return temp_str
 
     def __str__(self):
-        temp_str = self.__course_name+','+self.__room_id + \
+        temp_str = self.course_name+','+self.__room_id + \
             ',\t'+(', '.join(self.course_time))+',\t' + \
-            (', '.join(str(i) for i in self.__available_week))
+            (', '.join(str(i) for i in self.available_week))
         return temp_str
 
     def __hash__(self):
@@ -51,7 +51,7 @@ class Course():
         return other.getID() == self.__course_id
 
     def _readWeek(self, week):
-        self.__available_week = [i.start() for i in re.finditer('1', week)]
+        self.available_week = [i.start() for i in re.finditer('1', week)]
 
     def getID(self):
         return self.__course_id
@@ -64,15 +64,15 @@ class Course():
 
         teachers_name = course_info[1].split(',')
         for i in teachers_name:
-            self.__teacher_names.append(i)
+            self.teacher_names.append(i)
         self.__course_id = course_info[2]
-        self.__course_name = course_info[3]
+        self.course_name = course_info[3]
         self.__room_id = course_info[4]
-        self.__room_name = course_info[5]
+        self.room_name = course_info[5]
         self._readWeek(course_info[6])
         for i in range(len(course_time)):
             temp_string = course_time[i].replace('*unitCount+', ',')
-            self.course_time.append(temp_string)
+            self.course_time.add(temp_string)
 
 
 class TableManager():
