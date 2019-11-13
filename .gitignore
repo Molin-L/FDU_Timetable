@@ -107,5 +107,10 @@ venv.bak/
 *.html
 
 # Auto Login
-
 autologin.py
+
+# Cookies
+cookies
+
+# Test file
+test.py

@@ -14,37 +14,51 @@ import time
 import datetime
 import pytz
 import os
-import fdulogin
+import re
+from fdulogin import FDU_User
 import autologin
 from bs4 import BeautifulSoup
+from FDU_headers import HEADER_CAPTCHA, HEADER_LOGIN, HEADER_LT
+from utils import parseCookie, saveHtml
+
+
+class TableManager():
+
+    def __init__(self, session, cookies):
+        self.__session = session
+        self.__cookies = cookies
+        self._fetchTablePage()
+        self.__query_form = {}
+
+    def _fetchTablePage(self):
+        header = HEADER_LOGIN
+        get_url = "http://jwfw.fudan.edu.cn/eams/courseTableForStd.action"
+
+        resp = self.__session.get(
+            get_url, headers=header, cookies=self.__cookies)
+        self._set_cookies(resp)
+        print(resp)
+        self._get_ids(resp)
+        saveHtml("Table", resp.text, resp.status_code)
+
+    def _set_cookies(self, resp):
+        has_cookies = resp.cookies.get_dict()
+        self.__cookies.update(has_cookies)
+        set_cookies = parseCookie(resp.headers['Set-Cookie'])
+        print(has_cookies)
+        print(set_cookies)
+        self.__cookies.update(set_cookies)
+
+    def _get_ids(self, resp):
+        parsed_text = BeautifulSoup(resp.text, 'lxml')
+        ids = parsed_text.find_all('script')
+        ids = re.search(r'"ids","[0-9]*"', str(ids)).group(0)
+        ids = re.sub('"', '', ids).split(',')
+        self.__query_form['ids'] = ids[1]
+
 
 if __name__ == "__main__":
-    s = requests.Session()
+    user = FDU_User(autologin.id(), autologin.pw())
+    session, cookies = user.finish_login()
 
-    try:
-        da = fdulogin.fetchLoginPage(s)
-        '''
-        Login required
-        '''
-        # Uncomment the following line when you use this script.
-        #FDUID = input("Input your FDU id:\n")
-        #FDUPW = input("Input your password:\n")
-
-        # Test Only
-        FDUID = autologin.id()
-        FDUPW = autologin.pw()
-        # End TestOnly
-        resp = fdulogin.needCaptcha(FDUID, s)
-        if resp.status_code == 200:
-            resp_login = fdulogin.login(
-                username=FDUID, password=FDUPW, lt=da, session=s)
-            print(resp_login)
-            fdulogin.saveHtml(resp_login.text, resp_login.status_code)
-            if resp_login.status_code == 302:
-                print(resp_login.text)
-    except Exception as e:
-        print(e)
-
-    #
-    #
-    # print(resp)
+    tm = TableManager(session, cookies)
