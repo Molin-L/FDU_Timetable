@@ -1,4 +1,7 @@
 # FDU Timetable
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![GitHub license](https://img.shields.io/badge/license-Apache%202.0-blue)](https://github.com/Liu-Molin/FDU_Timetable/blob/master/LICENCE)
+
 >Good tool does not guarantee good design, but it can help by getting pain out of doing things right.
 
 Timetable exporter for FDU.
