@@ -7,7 +7,6 @@ Timetable exporter for FDU.
 
 Automatically login to jwfw.fdu.edu.cn, export as `.ics` file.
 <center>
-<div style="float:left;border:solid 1px 000;margin:10px;"><img src="./img/IMG_0635.PNG" width="300"/></div>
 <div style="float:right;border:solid 1px 000;margin:10px;"><img src="./img/IMG_0636.PNG" width="300"/></div>
 </center>
 
