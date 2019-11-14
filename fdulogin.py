@@ -18,7 +18,6 @@ import time
 import datetime
 import pytz
 import os
-import autologin
 import pickle
 import time
 from bs4 import BeautifulSoup
@@ -150,10 +149,3 @@ class FDU_User():
 
     def finish_login(self):
         return self.__session, self.__cookies
-
-
-if __name__ == "__main__":
-    user = FDU_User(autologin.id(), autologin.pw())
-    resp_login = user.login()
-    time.sleep(3.5)
-    saveHtml('Login', resp_login.text, resp_login.status_code)

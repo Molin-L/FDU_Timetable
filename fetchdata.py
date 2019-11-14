@@ -16,7 +16,6 @@ import pytz
 import os
 import re
 from fdulogin import FDU_User
-import autologin
 from bs4 import BeautifulSoup
 from FDU_headers import HEADER_CAPTCHA, HEADER_LOGIN, HEADER_LT
 from utils import parseCookie, saveHtml
@@ -203,6 +202,10 @@ if __name__ == "__main__":
     '''
     Change with your username and password:
     '''
-    user = FDU_User(fdu_id=autologin.id(), fdu_pw=autologin.pw())
+
+    username = input("Your FDU id:\n").strip()
+    password = input("Password:\n").strip()
+
+    user = FDU_User(fdu_id=username, fdu_pw=password)
     session, cookies = user.finish_login()
     processing(session, cookies)
