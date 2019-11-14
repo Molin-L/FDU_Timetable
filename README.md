@@ -15,6 +15,7 @@ Automatically login to jwfw.fdu.edu.cn, export as `.ics` file.
 
 # Setup
 - Download this repo, 
+- install requirements: `pip install -r requirements.txt`
 - add your username and password to the buttom of `fetchdata.py`, 
 - then run`python3 fetchdata.py`
 
