@@ -13,7 +13,12 @@ from icalendar import Calendar, Event
 from datetime import date
 import datetime
 import pytz
+from log import LogConfig
 
+'''
+Initialize Logger
+'''
+logger = LogConfig('console').getLogger()
 '''
 FDU Course Time
 '''
@@ -25,9 +30,9 @@ time_slot_start = {
     4: (11, 45),
     5: (13, 30),
     6: (14, 25),
-    7: (15, 20),
-    8: (16, 15),
-    9: (17, 10),
+    7: (15, 25),
+    8: (16, 20),
+    9: (17, 15),
     10: (18, 30),
     11: (19, 25),
     12: (20, 20)
@@ -101,7 +106,7 @@ def createCourseEvent(course, calendar):
             event.add('dtstart', start_time)
             event.add('dtend', end_time)
             event.add('location', course.room_name)
-
+            event.add('description', course.teacher_names)
             calendar.add_component(event)
     return calendar
 
@@ -126,9 +131,9 @@ def createCalendar(course_list):
     you can't add tag to these events either.
 
     The best way to add these events is to send to your email inbox,
-    open it on your phone.
+    open it on your phone. Recommend to use the ios default mail app.
     '''
     f = open('fdu_timetable.ics', 'wb')
     f.write(cal.to_ical())
     f.close()
-    print("All success, enjoy.")
+    logger.info("SUCCESS: All success, enjoy.")

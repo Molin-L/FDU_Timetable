@@ -10,6 +10,12 @@
 # --------------------------------------------------------------
 
 import os
+from log import LogConfig
+
+'''
+Initialize Logger
+'''
+logger = LogConfig('console').getLogger()
 
 
 def parseCookie(value):
@@ -35,3 +41,4 @@ def saveHtml(title, text, code):
     with open(filename, 'w') as file:
         file.write(text)
         file.close()
+    logger.info("SUCCESS: Save to %s." % filename)

@@ -21,10 +21,27 @@ from bs4 import BeautifulSoup
 from FDU_headers import HEADER_CAPTCHA, HEADER_LOGIN, HEADER_LT
 from utils import parseCookie, saveHtml
 import fileman
+from log import LogConfig
+
+'''
+Initialize Logger
+'''
+logger = LogConfig('console').getLogger()
 
 
 class Course():
+    '''
+    Class Course is designed for storing data from
+    response.
+
+    Please noted that the FDU timetable is oriented for
+    single class, not for the whole course.
+    '''
+
     def __init__(self):
+        '''
+        Initialize attributes
+        '''
         self.__teacher_id = []
         self.teacher_names = []
         self.__course_id = ""
@@ -52,6 +69,14 @@ class Course():
         return other.getID() == self.__course_id
 
     def _readWeek(self, week):
+        '''
+        Parse teaching week store in response
+        week example:
+            00000011000000000000000000000000000000000000000000000
+
+        Return:
+        Index of 1s
+        '''
         self.available_week = [i.start() for i in re.finditer('1', week)]
 
     def getID(self):
@@ -99,14 +124,14 @@ class TableManager():
         courses = parsed_text.find_all('script')
         courses = re.findall(
             r"(\t*activity = new.*\n(\t*index =.*\n\t*table0.*\n)*)", str(courses))
-        # print(courses)
-        #courses = re.findall(r'[\t]*activity = .*;', str(courses))
         for i in courses:
             self._parse_course(str(i))
 
     def fetchTablePage(self):
         '''
-        Get table page
+        Get table page for ids
+
+        Note: ids is for the following steps post.
         '''
         header = HEADER_LOGIN
         get_url = "http://jwfw.fudan.edu.cn/eams/courseTableForStd.action"
@@ -114,12 +139,18 @@ class TableManager():
         resp = self.__session.get(
             get_url, headers=header, cookies=self.__cookies)
         self._set_cookies(resp)
-        print(resp)
+
+        if resp.status_code == 200:
+            logger.info('Success: Get ids.')
+        else:
+            logger.error('Fail: Get ids.')
         self._get_ids(resp)
         saveHtml("TablePage", resp.text, resp.status_code)
-        # print(self.__session.cookies)
 
     def getTable(self):
+        '''
+        Post request for your timetable
+        '''
         post_url = "http://jwfw.fudan.edu.cn/eams/courseTableForStd!courseTable.action"
         post_form = {
             "ignoreHead": "1",
@@ -131,7 +162,10 @@ class TableManager():
 
         resp = self.__session.post(post_url, data=post_form, headers=HEADER_LOGIN,
                                    cookies=self.__cookies, timeout=40, allow_redirects=False)
-        print(resp)
+        if resp.status_code == 200:
+            logger.info("SUCCESS: Fetch timetable.")
+        else:
+            logger.error("Error: Connection error.")
         saveHtml("Table", resp.text, resp.status_code)
         return resp
 
@@ -142,8 +176,6 @@ class TableManager():
         has_cookies = resp.cookies.get_dict()
         self.__cookies.update(has_cookies)
         set_cookies = parseCookie(resp.headers['Set-Cookie'])
-        print(has_cookies)
-        print(set_cookies)
         self.__cookies.update(set_cookies)
 
     def _get_ids(self, resp):
@@ -162,12 +194,15 @@ def processing(session, cookies):
     tm.fetchTablePage()
     resp_table = tm.getTable()
     tm.data_clean(resp_table)
-    print(tm.course_list)
+    for i in tm.course_list:
+        logger.info(i)
     fileman.createCalendar(tm.course_list)
 
 
 if __name__ == "__main__":
-    user = FDU_User(autologin.id(), autologin.pw())
+    '''
+    Change with your username and password:
+    '''
+    user = FDU_User(fdu_id=autologin.id(), fdu_pw=autologin.pw())
     session, cookies = user.finish_login()
-
     processing(session, cookies)
