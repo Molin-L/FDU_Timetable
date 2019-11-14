@@ -38,7 +38,7 @@ Implemented in: `fetchdata.py`
 Implemented in: `fileman.py`
 
 # License
-See `LICENSE` for more information.
+This project is distributed under the `Apache 2.0` License, see [LICENSE](https://github.com/Liu-Molin/FDU_Timetable/blob/master/LICENCE) for more information.
 
 # Acknowledgments
 [FDU_COURSETABLE](https://github.com/syz913/FDU_COURSETABLE)
