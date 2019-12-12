@@ -12,7 +12,7 @@ Timetable exporter for FDU. Automatically login to jwfw.fdu.edu.cn, export as `.
 </center>
 
 
-# Setup
+## Setup
 - Download this repo, 
 - install requirements: `pip install -r requirements.txt`
 - add your username and password to the buttom of `fetchdata.py`, 
@@ -27,20 +27,23 @@ Timetable exporter for FDU. Automatically login to jwfw.fdu.edu.cn, export as `.
 
 - 尽量以邮件的方式发送生成的`fdu_timetable.ics`至你的邮箱，iOS使用系统默认邮箱打开
 
-# Overview
-## Login
+## Overview
+### Login
 教务系统登录：`fdulogin.py`
 
-## Table Retrieve
+### Table Retrieve
 Implemented in: `fetchdata.py`
 
-## Convert to .ics file
+### Convert to .ics file
 Implemented in: `fileman.py`
 
-# License
+## Todo
+- 添加自动获取校历，确定教学周开始日期
+
+## License
 This project is distributed under the `Apache 2.0` License, see [LICENSE](https://github.com/Liu-Molin/FDU_Timetable/blob/master/LICENCE) for more information.
 
-# Acknowledgments
+## Acknowledgments
 [FDU_COURSETABLE](https://github.com/syz913/FDU_COURSETABLE)
 
 Miss. Florence
